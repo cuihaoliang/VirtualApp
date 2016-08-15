@@ -1,7 +1,5 @@
 package com.lody.virtual.client.fixer;
 
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.WallpaperManager;
@@ -14,6 +12,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+
+import com.lody.virtual.helper.utils.Reflect;
 
 /**
  * @author Lody
@@ -46,7 +46,7 @@ public final class ActivityFixer {
 			ApplicationInfo applicationInfo = baseContext.getApplicationInfo();
 			PackageManager pm = activity.getPackageManager();
 			if (intent != null && activity.isTaskRoot()) {
-				String label = "" + applicationInfo.loadLabel(pm);
+				String label = "(VA)" + applicationInfo.loadLabel(pm);
 				Bitmap icon = null;
 				Drawable drawable = applicationInfo.loadIcon(pm);
 				if (drawable instanceof BitmapDrawable) {
