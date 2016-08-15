@@ -187,13 +187,18 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		String targetProcessName = ComponentUtils.getProcessName(targetActInfo);
 		IBinder replaceToken = null;
 
-		ProcessRecord process = mProcessMap.get( targetProcessName );
 
-		if( process == null){
+
+
 			if (request.fromHost) {
-				resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-				resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-				resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
+				ProcessRecord process = mProcessMap.get( targetProcessName );
+				if( process == null) {
+					resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+					resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+					resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
+				}else{
+					resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+				}
 			} else {
 				String taskAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
 				ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
@@ -291,9 +296,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					}
 				}
 			}
-		}else{
-			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-		}
+
 
 		ProcessRecord processRecord = startProcessLocked(targetProcessName, targetActInfo.applicationInfo);
 		if (processRecord == null) {
