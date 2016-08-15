@@ -980,6 +980,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				return null;
 			}
 			app = performStartProcessLocked(stubInfo, info, processName);
+
+			if (app != null) {
+				if (!app.pkgList.contains(info.packageName)) {
+					app.pkgList.add(info.packageName);
+				}
+			}
+
 			return app;
 		}
 	}
@@ -1061,7 +1068,10 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			mProcessMap.foreach(new ProcessMap.Visitor() {
 				@Override
 				public boolean accept(ProcessRecord record) {
+					VLog.e(TAG,"msg.what  record.pkgList.contains(pkg):"+record.pkgList);
+					VLog.e(TAG,"msg.what  record.pkgList.contains(pkg):"+record);
 					if (record.pkgList.contains(pkg)) {
+						VLog.e(TAG,"msg.what  killProcess+"+record.pid);
 						killProcess(record.pid);
 					}
 					return true;

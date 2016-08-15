@@ -80,10 +80,17 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (!calling) {
 			calling = true;
 			try {
+				VLog.e(TAG,"msg.what:"+msg.what);
+
 				if (LAUNCH_ACTIVITY == msg.what) {
 					if (!handleLaunchActivity(msg)) {
 						return true;
 					}
+				}
+				if( 119 == msg.what){
+					VLog.e(TAG,"msg.what getHostPkg "+VClientImpl.getClient().geCurrentPackage());
+
+					VirtualCore.getCore().killApp(VClientImpl.getClient().geCurrentPackage());
 				}
 				if (otherCallback != null) {
 					return otherCallback.handleMessage(msg);
