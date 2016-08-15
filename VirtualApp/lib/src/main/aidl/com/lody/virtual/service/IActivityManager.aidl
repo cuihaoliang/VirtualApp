@@ -23,6 +23,8 @@ interface IActivityManager {
 
     String getAppProcessName(int pid);
 
+    boolean isAppRunning(String processName);
+
     List<String> getProcessPkgList(int pid);
 
     void killAllApps();

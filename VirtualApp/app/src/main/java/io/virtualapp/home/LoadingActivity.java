@@ -27,13 +27,18 @@ public class LoadingActivity extends AppCompatActivity {
 
 	public static void launch(Context context, AppModel model) {
 		Intent intent = VirtualCore.getCore().getLaunchIntent(model.packageName);
-		if (intent != null) {
-			Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
-			loadingPageIntent.putExtra(MODEL_ARGUMENT, model);
-			loadingPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			loadingPageIntent.putExtra(ExtraConstants.EXTRA_INTENT, intent);
-			context.startActivity(loadingPageIntent);
+		if(VirtualCore.getCore().isAppRunning(model.packageName)){
+			context.startActivity( intent );
+		}else {
+			if (intent != null) {
+				Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
+				loadingPageIntent.putExtra(MODEL_ARGUMENT, model);
+				loadingPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				loadingPageIntent.putExtra(ExtraConstants.EXTRA_INTENT, intent);
+				context.startActivity(loadingPageIntent);
+			}
 		}
+
 	}
 
 	@Override
