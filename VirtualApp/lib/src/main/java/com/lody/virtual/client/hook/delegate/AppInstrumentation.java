@@ -1,17 +1,5 @@
 package com.lody.virtual.client.hook.delegate;
 
-import java.lang.reflect.Field;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.fixer.ActivityFixer;
-import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.interfaces.Injectable;
-import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.client.local.LocalActivityRecord;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityManagerCompat;
-import com.lody.virtual.helper.compat.BundleCompat;
-
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.app.Application;
@@ -21,6 +9,18 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.fixer.ActivityFixer;
+import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.interfaces.Injectable;
+import com.lody.virtual.client.local.LocalActivityRecord;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
+
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -78,7 +78,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		if (isApp) {
 			LocalActivityRecord r = VActivityManager.getInstance().onActivityCreate(activity);
 			ContextFixer.fixContext(activity);
-			ActivityFixer.fixActivity(activity);
+
 			ActivityInfo info = null;
 			if (r != null) {
 				info = r.activityInfo;
@@ -92,6 +92,8 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 					activity.setRequestedOrientation(info.screenOrientation);
 				}
 			}
+
+			ActivityFixer.fixActivity(activity);
 		}
 		super.callActivityOnCreate(activity, icicle);
 	}
