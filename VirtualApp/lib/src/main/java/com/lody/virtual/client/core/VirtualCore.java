@@ -262,6 +262,10 @@ public final class VirtualCore {
 		}
 	}
 
+	public boolean isAppRunning(String processName){
+		return VActivityManager.getInstance().isAppRunning(processName);
+	}
+
 	public void launchApp(String pkgName) throws Throwable {
 		Intent intent = getLaunchIntent(pkgName);
 		context.startActivity(intent);

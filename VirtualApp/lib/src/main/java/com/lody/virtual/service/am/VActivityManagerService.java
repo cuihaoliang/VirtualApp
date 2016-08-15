@@ -186,107 +186,115 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		ActivityInfo targetActInfo = request.targetActInfo;
 		String targetProcessName = ComponentUtils.getProcessName(targetActInfo);
 		IBinder replaceToken = null;
-		if (request.fromHost) {
-			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-			resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-			resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
-		} else {
-			String taskAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
-			ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
 
-			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0) {
-				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
-				if (task != null) {
-					for (ActivityRecord r : task.activityList) {
-						ActivityManagerCompat.finishActivity(r.token, -1, null);
-					}
-				}
-			}
+		ProcessRecord process = mProcessMap.get( targetProcessName );
 
-			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-				ActivityTaskRecord inTask = mMainStack.findTask(taskAffinity);
-				if (inTask != null) {
-					am.moveTaskToFront(inTask.taskId, 0);
-					ActivityRecord r = inTask.topActivity();
-					ProcessRecord processRecord = findProcess(r.pid);
-					// Only one Activity in the SingleInstance task
-					return new VActRedirectResult(r.token, processRecord.thread.asBinder());
-				} else {
-					resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-					resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-				}
-			}
+		if( process == null){
+			if (request.fromHost) {
+				resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+				resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+				resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
+			} else {
+				String taskAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
+				ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
 
-			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
-				ActivityTaskRecord topTask = getTopTask();
-				if (topTask != null && topTask.isOnTop(targetActInfo)) {
-					ActivityRecord r = topTask.topActivity();
-					ProcessRecord processRecord = findProcess(r.pid);
-					// The top Activity is the target Activity
-					return new VActRedirectResult(r.token, processRecord.thread.asBinder());
-				}
-			}
-
-			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
-				resultFlags |= Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT;
-				ActivityTaskRecord topTask = getTopTask();
-				if (topTask != null && topTask.isInTask(targetActInfo)) {
-					int size = topTask.size();
-					ActivityRecord top = null;
-					ListIterator<ActivityRecord> iterator = topTask.activityList.listIterator(size);
-					while (iterator.hasPrevious()) {
-						top = iterator.previous();
-						if (ComponentUtils.isSameComponent(top.activityInfo, targetActInfo)) {
-							break;
+				if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0) {
+					ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
+					if (task != null) {
+						for (ActivityRecord r : task.activityList) {
+							ActivityManagerCompat.finishActivity(r.token, -1, null);
 						}
-						ActivityManagerCompat.finishActivity(top.token, -1, null);
 					}
-					if (top != null) {
-						ProcessRecord processRecord = findProcess(top.pid);
+				}
+
+				if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+					ActivityTaskRecord inTask = mMainStack.findTask(taskAffinity);
+					if (inTask != null) {
+						am.moveTaskToFront(inTask.taskId, 0);
+						ActivityRecord r = inTask.topActivity();
+						ProcessRecord processRecord = findProcess(r.pid);
+						// Only one Activity in the SingleInstance task
+						return new VActRedirectResult(r.token, processRecord.thread.asBinder());
+					} else {
+						resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+						resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+					}
+				}
+
+				if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
+					ActivityTaskRecord topTask = getTopTask();
+					if (topTask != null && topTask.isOnTop(targetActInfo)) {
+						ActivityRecord r = topTask.topActivity();
+						ProcessRecord processRecord = findProcess(r.pid);
 						// The top Activity is the target Activity
-						return new VActRedirectResult(top.token, processRecord.thread.asBinder());
+						return new VActRedirectResult(r.token, processRecord.thread.asBinder());
 					}
 				}
-			}
 
-			if (sourceRecord != null && sourceRecord.caller != null) {
-				if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-					String comebackTaskAffinity = ComponentUtils.getTaskAffinity(sourceRecord.caller);
-					synchronized (mMainStack) {
-						ActivityTaskRecord comebackTask = mMainStack.findTask(comebackTaskAffinity);
-						if (comebackTask != null) {
-							am.moveTaskToFront(comebackTask.taskId, 0);
-							replaceToken = comebackTask.topActivityToken();
-						}
-					}
-				}
-			}
-			if ((launchFlags & Intent.FLAG_ACTIVITY_NO_USER_ACTION) != 0) {
-				resultFlags |= Intent.FLAG_ACTIVITY_NO_USER_ACTION;
-			}
-			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
-				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
-				if (task != null && task.isInTask(targetActInfo)) {
-					if (task.isOnTop(targetActInfo)) {
-						ActivityManagerCompat.finishActivity(task.topActivityToken(), -1, null);
-						return new VActRedirectResult();
-					}
-					List<ActivityRecord> activityList = task.activityList;
-					ListIterator<ActivityRecord> iterator = activityList.listIterator();
-					while (iterator.hasNext()) {
-						ActivityRecord current = iterator.next();
-						if (ComponentUtils.isSameComponent(current.activityInfo, targetActInfo)) {
-							while (iterator.hasNext()) {
-								ActivityRecord afterCurrent = iterator.next();
-								ActivityManagerCompat.finishActivity(afterCurrent.token, -1, null);
+				if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
+					resultFlags |= Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT;
+					ActivityTaskRecord topTask = getTopTask();
+					if (topTask != null && topTask.isInTask(targetActInfo)) {
+						int size = topTask.size();
+						ActivityRecord top = null;
+						ListIterator<ActivityRecord> iterator = topTask.activityList.listIterator(size);
+						while (iterator.hasPrevious()) {
+							top = iterator.previous();
+							if (ComponentUtils.isSameComponent(top.activityInfo, targetActInfo)) {
+								break;
 							}
-							ProcessRecord processRecord = findProcess(current.pid);
-							return new VActRedirectResult(current.token, processRecord.thread.asBinder());
+							ActivityManagerCompat.finishActivity(top.token, -1, null);
+						}
+						if (top != null) {
+							ProcessRecord processRecord = findProcess(top.pid);
+							// The top Activity is the target Activity
+							return new VActRedirectResult(top.token, processRecord.thread.asBinder());
+						}
+					}
+				}
+
+				if (sourceRecord != null && sourceRecord.caller != null) {
+					if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+						String comebackTaskAffinity = ComponentUtils.getTaskAffinity(sourceRecord.caller);
+						synchronized (mMainStack) {
+							ActivityTaskRecord comebackTask = mMainStack.findTask(comebackTaskAffinity);
+							if (comebackTask != null) {
+								am.moveTaskToFront(comebackTask.taskId, 0);
+								replaceToken = comebackTask.topActivityToken();
+							}
+						}
+					}
+				}
+				if ((launchFlags & Intent.FLAG_ACTIVITY_NO_USER_ACTION) != 0) {
+					resultFlags |= Intent.FLAG_ACTIVITY_NO_USER_ACTION;
+				}
+				if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
+					ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
+					if (task != null && task.isInTask(targetActInfo)) {
+						if (task.isOnTop(targetActInfo)) {
+							ActivityManagerCompat.finishActivity(task.topActivityToken(), -1, null);
+							return new VActRedirectResult();
+						}
+						List<ActivityRecord> activityList = task.activityList;
+						ListIterator<ActivityRecord> iterator = activityList.listIterator();
+						while (iterator.hasNext()) {
+							ActivityRecord current = iterator.next();
+							if (ComponentUtils.isSameComponent(current.activityInfo, targetActInfo)) {
+								while (iterator.hasNext()) {
+									ActivityRecord afterCurrent = iterator.next();
+									ActivityManagerCompat.finishActivity(afterCurrent.token, -1, null);
+								}
+								ProcessRecord processRecord = findProcess(current.pid);
+								return new VActRedirectResult(current.token, processRecord.thread.asBinder());
+							}
 						}
 					}
 				}
 			}
+		}else{
+			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
 		}
+
 		ProcessRecord processRecord = startProcessLocked(targetProcessName, targetActInfo.applicationInfo);
 		if (processRecord == null) {
 			return null;
@@ -461,6 +469,15 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 		}
 		return null;
+	}
+
+
+	public boolean isAppRunning(String processName){
+		if(mProcessMap.get(processName)!=null){
+			return true;
+		}else{
+			return  false;
+		}
 	}
 
 	public ActivityInfo getCallingActivity(IBinder token) {
