@@ -89,6 +89,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 				}
 				if( 119 == msg.what){
 					VLog.e(TAG,"msg.what getHostPkg "+VClientImpl.getClient().geCurrentPackage());
+					Object r = msg.obj;
 
 					//VirtualCore.getCore().killApp(VClientImpl.getClient().geCurrentPackage());
 				}

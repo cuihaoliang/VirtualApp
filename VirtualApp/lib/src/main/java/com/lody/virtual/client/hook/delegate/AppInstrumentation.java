@@ -19,6 +19,7 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 
@@ -120,6 +121,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
 			VActivityManager.getInstance().onActivityDestroy(activity);
+			VLog.e(TAG,"onActivityDestroy :"+activity);
 		}
 		super.callActivityOnDestroy(activity);
 	}

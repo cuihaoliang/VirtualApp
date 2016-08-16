@@ -361,11 +361,14 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	public void onActivityDestroyed(IBinder token) {
 		synchronized (mMainStack) {
 			ActivityTaskRecord r = mMainStack.findTask(token);
+			mMainStack.findRecord(token);
 			if (r != null) {
 				ActivityRecord record = r.activities.remove(token);
 				r.activityList.remove(record);
 				if (r.activityList.isEmpty()) {
 					mMainStack.tasks.remove(r);
+			//		killProcess(record.pid);
+
 				}
 			}
 		}
@@ -1177,5 +1180,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	public ProcessRecord findProcess(String processName) {
 		return mProcessMap.get(processName);
+	}
+
+	public void destoryActivity(IBinder token){
+		ActivityTaskRecord activityTaskRecord =this.mMainStack.findTask(token);
+
+		VLog.e(TAG,"activityTaskRecord "+activityTaskRecord);
 	}
 }
