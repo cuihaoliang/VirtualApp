@@ -15,6 +15,7 @@ import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.Collections;
  */
 /* package */ class Hook_StartActivity extends Hook_BaseStartActivity {
 
+	private  static  String TAG = Hook_StartActivity.class.getName();
 	@Override
 	public String getName() {
 		return "startActivity";
@@ -50,10 +52,16 @@ import java.util.Collections;
 		}
 		IBinder resultTo = (IBinder) args[resultToIndex];
 		final Intent targetIntent = (Intent) args[intentIndex];
+
+		VLog.e(TAG,"targetIntent:"+targetIntent);
 		ActivityInfo targetActInfo = VirtualCore.getCore().resolveActivityInfo(targetIntent);
+
+
 		if (targetActInfo == null) {
 			return method.invoke(who, args);
 		}
+
+			VLog.e(TAG,"targetActInfo:"+targetActInfo.taskAffinity);
 		String packageName = targetActInfo.packageName;
 		if (!VirtualCore.getCore().isAppInstalled(packageName)) {
 			return method.invoke(who, args);
@@ -62,6 +70,11 @@ import java.util.Collections;
 		VRedirectActRequest req = new VRedirectActRequest(targetActInfo, targetIntent.getFlags());
 		req.fromHost = !VirtualCore.getCore().isVAppProcess();
 		req.resultTo = resultTo;
+
+		if(targetIntent!=null&&("android.intent.action.MAIN").equals(targetIntent.getAction())){
+			req.fromHost = true ;
+		}
+
 		// Get Request Result
 		VActRedirectResult result = VActivityManager.getInstance().redirectTargetActivity(req);
 		if (result == null || result.justReturn) {

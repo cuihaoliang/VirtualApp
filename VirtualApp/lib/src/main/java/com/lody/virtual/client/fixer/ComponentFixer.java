@@ -27,7 +27,7 @@ public class ComponentFixer {
 		applicationInfo.sourceDir = info.apkPath;
 		try {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				applicationInfo.splitSourceDirs = new String[]{info.apkPath};
+				//applicationInfo.splitSourceDirs = new String[]{info.apkPath};
 				applicationInfo.splitPublicSourceDirs = applicationInfo.splitSourceDirs;
 			}
 		} catch (Throwable e) {

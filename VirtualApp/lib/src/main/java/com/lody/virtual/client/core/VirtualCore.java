@@ -29,6 +29,7 @@ import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IAppManager;
 
 import java.util.HashMap;
@@ -230,6 +231,7 @@ public final class VirtualCore {
 		AppInfo info = findApp(pkg);
 		if (info != null && !info.dependSystem) {
 			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
+			VLog.e("VirtualCore","info.getOdexFile().getPath():"+info.getOdexFile().getPath());
 		}
 	}
 

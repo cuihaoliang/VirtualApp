@@ -19,7 +19,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
-import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
@@ -175,6 +174,7 @@ public class VClientImpl extends IVClient.Stub {
 
 
 		VLog.e(TAG,"libraries:"+libraries);
+		VLog.e(TAG,"info:"+mBoundApplication.info.getClassLoader());
 
 		if (!libraries.isEmpty()) {
 			String frameworkPath = TextUtils.join(File.pathSeparator, data.appInfo.sharedLibraryFiles);

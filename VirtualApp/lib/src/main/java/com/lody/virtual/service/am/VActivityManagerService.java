@@ -2,7 +2,6 @@ package com.lody.virtual.service.am;
 
 import android.app.ActivityManager;
 import android.app.ApplicationThreadNative;
-import android.app.IAppTask;
 import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.app.Notification;
@@ -30,7 +29,6 @@ import android.util.Pair;
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
 import com.lody.virtual.client.service.ProviderCaller;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
@@ -188,10 +186,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		ActivityInfo targetActInfo = request.targetActInfo;
 		String targetProcessName = ComponentUtils.getProcessName(targetActInfo);
 		IBinder replaceToken = null;
-
-
-
-
 			if (request.fromHost) {
 				ProcessRecord process = mProcessMap.get( targetProcessName );
 				if( process == null) {
@@ -202,8 +196,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
 				}
 			} else {
+
+
 				String taskAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
 				ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
+
+				VLog.e(TAG,"taskAffinity:"+taskAffinity);
+
 
 				if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0) {
 					ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
