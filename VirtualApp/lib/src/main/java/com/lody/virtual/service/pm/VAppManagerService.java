@@ -2,6 +2,8 @@ package com.lody.virtual.service.pm;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
@@ -15,14 +17,19 @@ import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.FileIO;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.AppFileSystem;
+import com.lody.virtual.service.BinderProvider;
 import com.lody.virtual.service.IAppManager;
 import com.lody.virtual.service.am.VActivityManagerService;
 import com.lody.virtual.service.interfaces.IAppObserver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+
+import dalvik.system.DexFile;
 
 /**
  * @author Lody
@@ -104,8 +111,10 @@ public class VAppManagerService extends IAppManager.Stub {
 		}
 
 		File libDir = AppFileSystem.getDefault().getAppLibFolder(pkg.packageName);
-		boolean dependSystem = (flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0
-				&& VirtualCore.getCore().isOutsideInstalled(pkg.packageName);
+		//boolean dependSystem = (flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0  &&VirtualCore.getCore().isOutsideInstalled(pkg.packageName);
+		boolean dependSystem = false;
+
+		VLog.e(TAG," flags" +flags + "  "+ VirtualCore.getCore().isOutsideInstalled(pkg.packageName));
 
 		if (!onlyScan) {
 			if (res.isUpdate) {
@@ -135,9 +144,13 @@ public class VAppManagerService extends IAppManager.Stub {
 			PackageCache.remove(pkg.packageName);
 		}
 		AppFileSystem fileSystem = AppFileSystem.getDefault();
-		AppInfo appInfo = new AppInfo();
+		final AppInfo appInfo = new AppInfo();
 		appInfo.dependSystem = dependSystem;
-		appInfo.apkPath = apk.getPath();
+		try {
+			appInfo.apkPath = fileSystem.getAppApkFile(pkg.packageName).getCanonicalPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		appInfo.packageName = pkg.packageName;
 		appInfo.setApplicationInfo(pkg.applicationInfo);
 
@@ -155,6 +168,13 @@ public class VAppManagerService extends IAppManager.Stub {
 		PackageCache.put(pkg, appInfo);
 		notifyAppInstalled(pkg.packageName);
 		res.isSuccess = true;
+
+		VLog.e(TAG,"appInfo.apkPath:"+appInfo.apkPath +"  "+onlyScan  +"  "+dependSystem);
+		VLog.e(TAG,"appInfo.dataDir:"+appInfo.dataDir);
+		VLog.e(TAG,"appInfo.odexDir:"+appInfo.odexDir);
+
+
+		VLog.e(TAG,"install finish");
 		return res;
 	}
 

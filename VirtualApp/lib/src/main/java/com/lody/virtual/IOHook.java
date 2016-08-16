@@ -35,6 +35,9 @@ public class IOHook {
 		sDexOverrideMap = new HashMap<>(appInfos.size());
 		for (AppInfo info : appInfos) {
 			try {
+				VLog.e(TAG, "info.apkPath:"+new File(info.apkPath).getCanonicalPath());
+				VLog.e(TAG, "info.odexDir:"+info.odexDir);
+				VLog.e(TAG, "info.dependSystem:"+info.dependSystem);
 				sDexOverrideMap.put(new File(info.apkPath).getCanonicalPath(), info);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -123,12 +126,18 @@ public class IOHook {
 	public static void onOpenDexFileNative(String[] params) {
 		String dexOrJarPath = params[0];
 		String outputPath = params[1];
-		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s.", dexOrJarPath, outputPath);
+		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s." , dexOrJarPath, outputPath);
 		AppInfo info = sDexOverrideMap.get(dexOrJarPath);
+
+
 		if (info != null && !info.dependSystem) {
-			outputPath = info.getOdexFile().getPath();
+			//outputPath = info.getOdexFile().getPath();
+			outputPath = "/data/data/io.virtualapp/app_VApps/com.ios.minicalc/dalvik-cache/classes.dex";
+			System.out.println("------------"+outputPath);
 		}
-		params[1] = outputPath;
+
+		System.out.println("+++++++++++++++"+info);
+		//params[1] = outputPath;
 	}
 
 

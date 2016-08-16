@@ -90,7 +90,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 				if( 119 == msg.what){
 					VLog.e(TAG,"msg.what getHostPkg "+VClientImpl.getClient().geCurrentPackage());
 
-					VirtualCore.getCore().killApp(VClientImpl.getClient().geCurrentPackage());
+					//VirtualCore.getCore().killApp(VClientImpl.getClient().geCurrentPackage());
 				}
 				if (otherCallback != null) {
 					return otherCallback.handleMessage(msg);
@@ -130,6 +130,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			return false;
 		}
 		ClassLoader appClassLoader = appInfo.getClassLoader();
+
+		VLog.e(TAG,"ClassLoader:"+appClassLoader);
 		targetIntent.setExtrasClassLoader(appClassLoader);
 
 		boolean error = false;

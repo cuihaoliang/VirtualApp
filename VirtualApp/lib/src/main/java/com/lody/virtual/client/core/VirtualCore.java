@@ -389,11 +389,11 @@ public final class VirtualCore {
 	}
 
 	public boolean isOutsideInstalled(String packageName) {
-		try {
+		/*try {
 			return unHookPackageManager.getApplicationInfo(packageName, 0) != null;
 		} catch (PackageManager.NameNotFoundException e) {
 			// Ignore
-		}
+		}*/
 		return false;
 	}
 

@@ -34,6 +34,7 @@ import android.util.Log;
 import android.util.TypedValue;
 
 import com.android.internal.util.XmlUtils;
+import com.lody.virtual.Common;
 import com.lody.virtual.helper.utils.VLog;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -900,6 +901,9 @@ public class PackageParser {
 	}
 
 	public Package parsePackage(File sourceFile, String destCodePath, DisplayMetrics metrics, int flags) {
+
+
+		Common.printCallStatck();
 		mParseError = PackageManager.INSTALL_SUCCEEDED;
 
 		mArchiveSourcePath = sourceFile.getPath();

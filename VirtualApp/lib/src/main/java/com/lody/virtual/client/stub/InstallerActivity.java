@@ -1,15 +1,23 @@
 package com.lody.virtual.client.stub;
 
+import java.io.IOException;
 import java.net.URLDecoder;
 
+import com.lody.virtual.Common;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.helper.utils.VLog;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
+
+import dalvik.system.DexFile;
 
 public class InstallerActivity extends Activity {
 	public static String installScheme = "file://";
@@ -43,9 +51,30 @@ public class InstallerActivity extends Activity {
 
 	public void installVirtualApp(String path) throws Throwable {
 		int flags = InstallStrategy.UPDATE_IF_EXIST | InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
-		VirtualCore.getCore().installApp(path, flags);
-		Toast.makeText(this, "Install finish!", Toast.LENGTH_SHORT).show();
+
+		Common.printCallStatck();
+		VLog.e("installApp","installApp  +"+flags);
+		final InstallResult result = VirtualCore.getCore().installApp(path, flags);
+
+
+
+
+			/*final Handler handler = new Handler(Looper.getMainLooper());
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					try {
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});*/
+		VirtualCore.getCore().preOpt(result.packageName);
+		Toast.makeText(InstallerActivity.this, "Install finish!", Toast.LENGTH_SHORT).show();
 		finish();
+
+
 	}
 
 	public void unInstallVirtualApp(String packageName) {

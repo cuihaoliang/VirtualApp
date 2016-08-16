@@ -134,8 +134,8 @@ public class VClientImpl extends IVClient.Stub {
 				super.start();
 			}
 		});
-		IOHook.startDexOverride();
-		IOHook.hookNative();
+		//IOHook.startDexOverride();
+		//IOHook.hookNative();
 		ContextFixer.fixCamera();
 		mBoundApplication = data;
 		List<String> libraries = new ArrayList<>();
@@ -172,6 +172,10 @@ public class VClientImpl extends IVClient.Stub {
 		ActivityThread mainThread = VirtualCore.mainThread();
 		mBoundApplication.info = mainThread.getPackageInfoNoCheck(data.appInfo,
 				CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
+
+
+		VLog.e(TAG,"libraries:"+libraries);
+
 		if (!libraries.isEmpty()) {
 			String frameworkPath = TextUtils.join(File.pathSeparator, data.appInfo.sharedLibraryFiles);
 			VLog.d(TAG, "Import library : %s.", frameworkPath);

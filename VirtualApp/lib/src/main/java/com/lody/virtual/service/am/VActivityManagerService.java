@@ -2,6 +2,7 @@ package com.lody.virtual.service.am;
 
 import android.app.ActivityManager;
 import android.app.ApplicationThreadNative;
+import android.app.IAppTask;
 import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.app.Notification;
@@ -29,6 +30,7 @@ import android.util.Pair;
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
 import com.lody.virtual.client.service.ProviderCaller;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
@@ -957,6 +959,33 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	private void onProcessDead(ProcessRecord record) {
 		VLog.d(TAG, "Process %s died.", record.processName);
 		mProcessMap.remove(record.pid);
+
+	/*	try {
+			List<IAppTask> tasks = ActivityManagerPatch.getAMN().getAppTasks(record.info.packageName);
+			for(IAppTask task:tasks){
+				if(task.getTaskInfo().)
+				task.finishAndRemoveTask();
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+
+		for (ActivityTaskRecord task : mMainStack.tasks) {
+			for(ActivityRecord activityRecord : task.activityList ){
+				if( activityRecord.pid == record.pid ){
+
+					try {
+						VLog.e(TAG,"removeTask: "+task.taskId);
+						ActivityManagerPatch.getAMN().removeTask(task.taskId);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+		}*/
+
+
 		processDead(record);
 		record.lock.open();
 	}

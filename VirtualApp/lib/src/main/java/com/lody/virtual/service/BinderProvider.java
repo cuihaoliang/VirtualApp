@@ -26,10 +26,15 @@ public final class BinderProvider extends BaseContentProvider {
 
 	private final ServiceFetcher mServiceFetcher = new ServiceFetcher();
 
+	public static Context mContext;
+
 	@Override
 	public boolean onCreate() {
 		Context context = getContext();
 		KeepService.startup(context);
+
+		mContext = context ;
+
 		if (!VirtualCore.getCore().isStartup()) {
 			return true;
 		}
