@@ -124,20 +124,28 @@ public class IOHook {
 	}
 
 	public static void onOpenDexFileNative(String[] params) {
-		String dexOrJarPath = params[0];
-		String outputPath = params[1];
-		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s." , dexOrJarPath, outputPath);
-		AppInfo info = sDexOverrideMap.get(dexOrJarPath);
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+			String dexOrJarPath = params[0];
+			String outputPath = params[1];
+			VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s." , dexOrJarPath, outputPath);
+			AppInfo info = sDexOverrideMap.get(dexOrJarPath);
 
 
-		if (info != null && !info.dependSystem) {
-			//outputPath = info.getOdexFile().getPath();
-			outputPath = "/data/data/io.virtualapp/app_VApps/com.ios.minicalc/dalvik-cache/classes.dex";
-			System.out.println("------------"+outputPath);
+			if (info != null && !info.dependSystem) {
+				outputPath = info.getOdexFile().getPath();
+				//outputPath = "/data/data/io.virtualapp/app_VApps/com.ss.android.article.news/dalvik-cache/classes.dex";
+				System.out.println("------------"+outputPath);
+			}
+
+			if(outputPath!=null&&outputPath.contains(".dex")){
+				File file = new File(outputPath);
+				System.out.println(file.getAbsoluteFile()+" "+file.exists());
+			}
+			System.out.println("+++++++++++++++"+info);
+
+			params[1] = outputPath;
 		}
 
-		System.out.println("+++++++++++++++"+info);
-		//params[1] = outputPath;
 	}
 
 
