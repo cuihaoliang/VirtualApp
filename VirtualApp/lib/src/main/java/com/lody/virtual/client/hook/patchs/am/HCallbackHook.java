@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
+import com.lody.virtual.Common;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
@@ -104,6 +105,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	}
 
 	private boolean handleLaunchActivity(Message msg) {
+
+		VLog.e(TAG,"handleLaunchActivity start");
 		Object r = msg.obj;
 		// StubIntent
 		Intent stubIntent = ActivityRecordCompat.getIntent(r);
@@ -159,6 +162,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		}
 		ActivityRecordCompat.setIntent(r, targetIntent);
 		ActivityRecordCompat.setActivityInfo(r, targetActInfo);
+
+		VLog.e(TAG,"CallBackHook finish");
 		return true;
 	}
 
@@ -174,6 +179,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		boolean envBad = callback != this;
 		if (callback != null && envBad) {
 			VLog.d(TAG, "HCallback has bad, other callback = " + callback);
+			Common.printCallStatck();
 		}
 		return envBad;
 	}
